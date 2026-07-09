@@ -1,12 +1,20 @@
+from dataclasses import dataclass
+import  numpy as np
 import cv2
 from ultralytics import YOLO
+
+@dataclass
+class DetectionPayload:
+    frame: np.ndarray
+    human_count: int
 
 class VisionWorker:
     # [FIX] Corrected to two underscores
     def __init__(self, model_name="yolo11n.pt", camera_index=0):
         self.model_name = model_name
+        self.detection_classes = [0]
         self.camera_index = camera_index
-        self.capture_backend = [cv2.CAP_DSHOW, cv2.CAP_MSMF]
+        self.capture_backend = [cv2.CAP_MSMF, cv2.CAP_DSHOW]
         self.model = None
         self.cap = None
 
@@ -50,11 +58,19 @@ class VisionWorker:
                     print("[-] Error: Lost camera frame. Exiting stream...")
                     break
 
-                results = self.model(frame, stream=True, verbose=False)
+                results = self.model(frame, stream=True, verbose=False, classes = self.detection_classes)
 
                 for result in results:
                     annotated_frame = result.plot()
-                    yield annotated_frame
+
+                    current_human_count = len(result.boxes)
+
+                    payload = DetectionPayload(
+                        frame = annotated_frame,
+                        human_count = current_human_count
+                    )
+
+                    yield payload
 
         finally:
             # [FIX] Guaranteed execution: releases the hardware camera even if the loop crashes.
