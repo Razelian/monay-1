@@ -1,86 +1,142 @@
 import sys
+import os
+import time
+import base64
 import cv2
-from PyQt6.QtGui import QImage, QPixmap
-from PyQt6.QtWidgets import QMainWindow, QLabel, QLCDNumber, QVBoxLayout, QWidget, QApplication
-from PyQt6.QtCore import QThread
-from vision_controller import YOLOController
+from PyQt6.QtCore import QThread, pyqtSignal, QUrl, pyqtSlot
+from PyQt6.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWebEngineCore import QWebEngineSettings
 
-class Dashboard(QMainWindow):
+# Import our decoupled worker
+from vision_worker import VisionWorker
+
+# A global variable that might mess the code
+average_waiting_time = 2.5
+
+class VisionThread(QThread):
+    # Signal definition: sends (human_count, base64_image_string)
+    update_ui_signal = pyqtSignal(int, str)
+
     def __init__(self):
         super().__init__()
-        self.init_ui()
-        self.setup_threading()
+        self.running = True
+        self.worker = VisionWorker(model_name="yolo11n.pt", camera_index=0)
+        self.generator = None
 
-    def init_ui(self):
-        print("Initializing dashboard...")
-        # Basic UI Setup (Placeholder for your actual design)
-        self.video_label = QLabel("Camera Feed Initializing...")
-        self.count_lcd = QLCDNumber()
+    def run(self):
+        # 1. Initialize Hardware & AI
+        self.worker.load_model()
+        self.worker.open_camera()
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.video_label)
-        layout.addWidget(self.count_lcd)
+        self.generator = self.worker.generate_frames()
 
-        container = QWidget()
-        container.setLayout(layout)
-        self.setCentralWidget(container)
+        # Optimization 1: Target UI Framerate (15 FPS = ~0.066 seconds per frame)
+        target_frame_time = 1.0 / 15.0
+        last_sent_time = 0
 
-    def setup_threading(self):
-        # 1. Instantiate the raw thread and the worker object
-        self.inference_thread = QThread()
-        self.yolo_controller = YOLOController(model_name="yolo11n.pt")
+        # 2. Consume the generator
+        for payload in self.generator:
+            if not self.running:
+                break
 
-        # 2. MOVE THE WORKER TO THE THREAD
-        self.yolo_controller.moveToThread(self.inference_thread)
+            current_time = time.time()
 
-        # 3. Wire up the Signals and Slots
-        # When the thread starts, trigger the run_inference method
-        self.inference_thread.started.connect(self.yolo_controller.run_inference)
+            # Only encode and send the frame if enough time has passed
+            if (current_time - last_sent_time) >= target_frame_time:
 
-        # When the controller has a frame, send it to the UI update method
-        self.yolo_controller.frame_ready.connect(self.update_dashboard)
+                # Optimization 2: Compress the image to 60% JPEG quality to shrink Base64 size
+                encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 60]
+                success, buffer = cv2.imencode('.jpg', payload.ui_video_feed, encode_param)
 
-        # Cleanup wiring: When controller is finished, quit the thread
-        self.yolo_controller.finished.connect(self.inference_thread.quit)
-        # Ensure the controller object is deleted to prevent memory leaks
-        self.yolo_controller.finished.connect(self.yolo_controller.deleteLater)
-        # Delete the thread object once it has fully quit
-        self.inference_thread.finished.connect(self.inference_thread.deleteLater)
+                if success:
+                    # Convert bytes to base64 string
+                    b64_str = base64.b64encode(buffer).decode('utf-8')
 
-        # 4. Start the engine
-        self.inference_thread.start()
+                    # Emit the optimized data to the Main GUI Thread
+                    self.update_ui_signal.emit(payload.ui_human_count, b64_str)
 
-    def update_dashboard(self, payload):
-        """Executes safely on the Main UI Thread."""
-        self.count_lcd.display(payload.human_count)
-        # Extract the raw NumPy array from the DTO
-        bgr_frame = payload.frame
-        height, width, channels = bgr_frame.shape
-        bytes_per_line = channels * width
+                    last_sent_time = current_time
 
-        # Step 1: Convert BGR Matrix to RGB Matrix
-        rgb_frame = cv2.cvtColor(bgr_frame, cv2.COLOR_BGR2RGB)
-
-        # Step 2: Construct QImage pointing to the raw frame bytes
-        qt_image = QImage(
-            rgb_frame.data,
-            width,
-            height,
-            bytes_per_line,
-            QImage.Format.Format_RGB888
-        )
-
-        # Step 3: Convert to a hardware-accelerated QPixmap
-        pixmap = QPixmap.fromImage(qt_image)
-
-        # Step 4: Draw it on the UI Label
-        self.video_label.setPixmap(pixmap)
+    def stop(self):
+        """Safely shuts down the thread and hardware"""
+        self.running = False
+        if self.generator:
+            self.generator.close() # Forces the generator's 'finally' block to run
+        self.wait()
 
 
+class DashboardWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Monay-1: Neon Tokyo Vision")
+        self.resize(1280, 720) # Dashboard default size
 
+        # 1. Setup the Web Engine (Chromium Browser inside PyQt)
+        self.browser = QWebEngineView()
 
-if __name__ == "__main__":
+        # Enable loading of remote CDN scripts (Tailwind CSS) on local HTML files
+        settings = self.browser.settings()
+        settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
+        settings.setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, True)
+
+        self.setCentralWidget(self.browser)
+
+        # 2. Load the HTML file (Requires absolute path)
+        html_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "ui", "main_dashboard.html"))
+        self.browser.load(QUrl.fromLocalFile(html_path))
+
+        # 3. Setup and start the AI Background Thread
+        self.ai_thread = VisionThread()
+        self.ai_thread.update_ui_signal.connect(self.update_dashboard)
+
+        # Wait for the browser to finish loading HTML before starting the camera
+        self.browser.loadFinished.connect(self.on_html_loaded)
+
+    def on_html_loaded(self, success):
+        if success:
+            print("[+] HTML Dashboard Loaded. Starting AI Engine...")
+            self.ai_thread.start()
+        else:
+            print("[-] Failed to load HTML file.")
+
+    @pyqtSlot(int, str)
+    def update_dashboard(self, human_count, b64_str):
+        """
+        This slot runs on the GUI thread. It injects the data straight into
+        the DOM using the IDs we set up in the HTML file.
+        """
+        # Optimization 3: Only update innerText if the count actually changed.
+        js_code = f"""
+            var img = document.getElementById('ui_video_feed');
+            if (img) {{
+                img.src = 'data:image/jpeg;base64,{b64_str}';
+            }}
+
+            var count_elem = document.getElementById('ui_human_count');
+            if (count_elem && count_elem.innerText !== '{human_count}') {{
+                count_elem.innerText = '{human_count}';
+            }}
+
+            var waiting_time = document.getElementById('ui_waiting_time');
+            if (waiting_time){{
+                waiting_time.innerText = '{human_count * average_waiting_time}';
+            }}
+        """
+        # Execute the Javascript injection
+        self.browser.page().runJavaScript(js_code)
+
+    def closeEvent(self, event):
+        """Triggered when the user clicks the 'X' to close the window"""
+        print("[*] Shutting down application cleanly...")
+        self.ai_thread.stop()
+        event.accept()
+
+def main():
     app = QApplication(sys.argv)
-    window = Dashboard()
+    window = DashboardWindow()
     window.show()
     sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()

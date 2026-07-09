@@ -4,9 +4,12 @@ import cv2
 from ultralytics import YOLO
 
 @dataclass
-class DetectionPayload:
-    frame: np.ndarray
-    human_count: int
+class DashboardPayload:
+    # 1. The Heavy Data: Kept separate because UI needs to convert this to a QImage
+    ui_video_feed: np.ndarray
+
+    # 2. The Light Data: Maps exact UI Widget IDs to their new values
+    ui_human_count: int
 
 class VisionWorker:
     # [FIX] Corrected to two underscores
@@ -40,8 +43,8 @@ class VisionWorker:
             raise RuntimeError("CRITICAL: All capture backends failed. Could not open webcam.")
 
         # Configure video dimensions
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        # self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        # self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
     def generate_frames(self):
         """
@@ -65,9 +68,9 @@ class VisionWorker:
 
                     current_human_count = len(result.boxes)
 
-                    payload = DetectionPayload(
-                        frame = annotated_frame,
-                        human_count = current_human_count
+                    payload = DashboardPayload(
+                        ui_video_feed = annotated_frame,
+                        ui_human_count = current_human_count
                     )
 
                     yield payload
