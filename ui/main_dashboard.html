@@ -86,6 +86,9 @@
       }
     </script>
 <style type="text/tailwindcss">
+    ::-webkit-scrollbar {
+            display: none;
+        }
         body {
             background-color: theme('colors.background');
             color: theme('colors.on-background');
@@ -216,7 +219,7 @@
 <span class="material-symbols-outlined text-secondary text-4xl mb-2 z-10">hourglass_top</span>
 <h3 class="font-label text-sm text-secondary uppercase tracking-widest mb-4 z-10 font-bold">Estimated Waiting Time</h3>
 <div class="font-headline text-5xl xl:text-6xl font-black text-secondary neon-text-secondary z-10" id = "ui_waiting_time">
-                        30 <span class="text-3xl text-secondary/70">Mins</span>
+                        0.0 <span class="text-3xl text-secondary/70">Mins</span>
 </div>
 <!-- Progress bar indicator -->
 <div class="w-full h-1 bg-black/50 mt-8 rounded-full overflow-hidden z-10">
@@ -265,4 +268,35 @@
 
 
 
+<script>
+    function updateClock() {
+        const clockElement = document.getElementById('digital-clock');
+        if (!clockElement) return;
+
+        const now = new Date();
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+
+        hours = hours % 12;
+        hours = hours ? hours : 12; // Convert 24h hour 0 to 12
+        const formattedHours = String(hours).padStart(2, '0');
+
+        clockElement.innerHTML = `${formattedHours}:${minutes} <span class="text-xl text-primary">${ampm}</span>`;
+    }
+
+    function startClock() {
+        updateClock();
+        const now = new Date();
+        // Calculate milliseconds to the next exact minute roll-over
+        const delay = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+        setTimeout(() => {
+            updateClock();
+            setInterval(updateClock, 60000); // Update every 60 seconds
+        }, delay);
+    }
+
+    // Initialize clock aligned to minute boundary
+    startClock();
+</script>
 </body></html>
