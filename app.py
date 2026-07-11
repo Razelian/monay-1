@@ -9,57 +9,63 @@ from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineSettings
 
+from config import Config
 # Import decoupled worker
 from vision_worker import VisionWorker
 # Import data manager for parsing data log (jsonl)
-from data_manager import DataManager
+from metrics_repository import MetricsRepository
 
-# A global variable that might mess the code
-average_waiting_time = 2.5
 
 class VisionThread(QThread):
     # Signal definition: sends (human_count, base64_image_string)
     update_ui_signal = pyqtSignal(int, str)
 
-    def __init__(self):
+    def __init__(self, worker, metrics_repository):
         super().__init__()
         self.running = True
-        self.worker = VisionWorker(model_name="yolo11n.pt", camera_index=0)
+        self.worker = worker
+        self.metrics_repository = metrics_repository
         self.generator = None
 
     def run(self):
         # 1. Initialize Hardware & AI
         self.worker.load_model()
         self.worker.open_camera()
-
         self.generator = self.worker.generate_frames()
 
         # Optimization 1: Target UI Framerate (15 FPS = ~0.066 seconds per frame)
         target_frame_time = 1.0 / 15.0
         last_sent_time = 0
 
-        # 2. Consume the generator
+        # Rolling average accumulator
+        last_average_time = 0
+        count_samples = []        # Accumulates all counts within the window
+
         for payload in self.generator:
             if not self.running:
                 break
 
             current_time = time.time()
 
-            # Only encode and send the frame if enough time has passed
+            # --- Frame sending (unchanged) ---
             if (current_time - last_sent_time) >= target_frame_time:
-
-                # Optimization 2: Compress the image to 60% JPEG quality to shrink Base64 size
                 encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 60]
                 success, buffer = cv2.imencode('.jpg', payload.ui_video_feed, encode_param)
-
                 if success:
-                    # Convert bytes to base64 string
                     b64_str = base64.b64encode(buffer).decode('utf-8')
-
-                    # Emit the optimized data to the Main GUI Thread
                     self.update_ui_signal.emit(payload.ui_human_count, b64_str)
-
                     last_sent_time = current_time
+
+            # --- Rolling average logging ---
+            count_samples.append(payload.ui_human_count)
+
+            if (current_time - last_average_time) >= Config.AVERAGE_COUNT_INTERVAL:
+                if count_samples:
+                    average = sum(count_samples) / len(count_samples)
+                    print(f"15-min average: {average:.1f} (from {len(count_samples)} samples)")
+                    self.metrics_repository.save_log(average)
+                last_average_time = current_time
+                count_samples = []  # Reset for next window
 
     def stop(self):
         """Safely shuts down the thread and hardware"""
@@ -74,6 +80,8 @@ class DashboardWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Monay-1: Waiting Time Estimator")
         self.resize(1280, 720) # Dashboard default size
+        self.worker = VisionWorker(model_name="yolo11n.pt", camera_index=0)
+        self.metrics_repository = MetricsRepository()
 
         # 1. Setup the Web Engine (Chromium Browser inside PyQt)
         self.browser = QWebEngineView()
@@ -91,7 +99,7 @@ class DashboardWindow(QMainWindow):
 
         # 3. Setup and start the AI Background Thread
         print("Initializing Vision thread...")
-        self.ai_thread = VisionThread()
+        self.ai_thread = VisionThread(self.worker, self.metrics_repository)
         self.ai_thread.update_ui_signal.connect(self.update_dashboard)
 
         # Wait for the browser to finish loading HTML before starting the camera
@@ -99,7 +107,7 @@ class DashboardWindow(QMainWindow):
 
         # Setup and start the Analytics thread
         print("Initializing Analytics thread...")
-        self.analytics_thread = AnalyticsThread()
+        self.analytics_thread = AnalyticsThread(self.metrics_repository)
         self.analytics_thread.analytics_ready_signal.connect(self.on_analytics_ready)
         self.analytics_thread.start()
         self.analytics_thread.run()
@@ -140,7 +148,7 @@ class DashboardWindow(QMainWindow):
 
             var waiting_time = document.getElementById('ui_waiting_time');
             if (waiting_time){{
-                waiting_time.innerText = '{human_count * average_waiting_time} mins.';
+                waiting_time.innerText = '{human_count * Config.AVERAGE_WAITING_TIME} mins.';
             }}
         """
         # Execute the Javascript injection
@@ -163,17 +171,17 @@ class DashboardWindow(QMainWindow):
 class AnalyticsThread(QThread):
     analytics_ready_signal = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, metrics_repository):
         super().__init__()
         try:
-            self.data_manager =  DataManager()
+            self.metrics_repository =  metrics_repository
         except Exception as e:
-            raise RuntimeError(f"Error initializing DataManager: {e}")
+            raise RuntimeError(f"Error initializing MetricsRepository: {e}")
 
     def run(self):
         try:
-            # Critical Point 1: Reading from disk (Handled mostly in DataManager, but we catch unexpected errors here)
-            averages = self.data_manager.get_hourly_averages()
+            # Critical Point 1: Reading from disk (Handled mostly in MetricsRepository, but we catch unexpected errors here)
+            averages = self.metrics_repository.get_hourly_averages()
 
             # Critical Point 2: JSON Serialization. If data is malformed, this will throw a TypeError.
             json_payload = json.dumps(averages)
@@ -185,10 +193,7 @@ class AnalyticsThread(QThread):
             # Catch-all ensures the thread doesn't die silently.
             raise RuntimeError (f"Analytics background processing failed: {str(e)}")
 
-    # temporary function to save and load jsonl
-    def save_log(self, human_count):
-        print("saving log")
-        self.data_manager.save_log(human_count)
+
 
 
 def main():

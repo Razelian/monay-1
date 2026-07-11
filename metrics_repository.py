@@ -5,12 +5,15 @@ from datetime import datetime
 from collections import defaultdict
 import logging
 
-class DataManager:
-    def __init__(self, filepath="data_log.jsonl"):
+# Responsibilities: reading and  writing logs and making sure the jsonl file is accessible
+class MetricsRepository:
+    def __init__(self, filepath = None):
+        if filepath is None:
+            filepath = "data_log.jsonl"
         self.filepath = filepath
         try:
             if not os.path.exists(self.filepath):
-                print("Creating data_log.jsonl...")
+                print(f"Creating {self.filepath}...")
                 open(self.filepath, 'a').close()
         except Exception as e:
             raise OSError(f"Error loading filepath: {e}")

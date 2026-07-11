@@ -12,7 +12,6 @@ class DashboardPayload:
     ui_human_count: int
 
 class VisionWorker:
-    # [FIX] Corrected to two underscores
     def __init__(self, model_name="yolo11n.pt", camera_index=0):
         self.model_name = model_name
         self.detection_classes = [0]
