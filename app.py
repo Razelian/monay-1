@@ -4,8 +4,7 @@ import time
 import base64
 import cv2
 import json
-from datetime import datetime
-from PyQt6.QtCore import QThread, pyqtSignal, QUrl, pyqtSlot
+from PyQt6.QtCore import QThread, pyqtSignal, QUrl, pyqtSlot, QTimer
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEngineSettings
@@ -106,25 +105,32 @@ class DashboardWindow(QMainWindow):
         # Wait for the browser to finish loading HTML before starting the camera
         self.browser.loadFinished.connect(self.on_html_loaded)
 
-        # Setup and start the Analytics thread
-        print("Initializing Analytics thread...")
+        # Analytics timer — refreshes automatically every 60 seconds
+        self.analytics_timer = QTimer()
+        self.analytics_timer.timeout.connect(self.fetch_analytics)
+        self.analytics_timer.start(60_000)
+
+    def fetch_analytics(self):
+        """Create a fresh AnalyticsThread each cycle.  The old one
+        garbage-collects after emitting its signal."""
         self.analytics_thread = AnalyticsThread(self.metrics_repository)
         self.analytics_thread.analytics_ready_signal.connect(self.on_analytics_ready)
         self.analytics_thread.start()
 
     @pyqtSlot(str)
     def on_analytics_ready(self, json_payload):
-        print("Analytics ready")
-        """Receives data safely on the main UI thread."""
+        """Receives data safely on the main UI thread and pushes it into
+        the JavaScript render pipeline."""
         try:
-            # Critical Point 5: Cross-language injection (Python to JS)
-            # If the JS function doesn't exist or syntax is wrong, this can fail.
-            #self.browser.page().runJavaScript(f"updateAnalyticsChart({json_payload});")
-
-            print(json_payload)
-
+            data = json.loads(json_payload)
+            if data.get("error"):
+                print(f"[Analytics Error] {data['message']}")
+                return
+            self.browser.page().runJavaScript(
+                f"window.renderAnalytics({json_payload});"
+            )
         except Exception as e:
-            print(f"[UI Error] Failed to inject analytics into dashboard: {e}")
+            print(f"[UI Error] Analytics injection failed: {e}")
 
 
 

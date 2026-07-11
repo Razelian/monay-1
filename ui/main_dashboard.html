@@ -5,6 +5,7 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Sora:wght@400;600;700;800;900&amp;family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
@@ -150,7 +151,7 @@
 <!-- Main Content Area -->
 <div class="flex flex-1 w-full flex-col">
 <!-- Dashboard Canvas (Now full width) -->
-<main class="flex-1 p-6 lg:p-8 flex flex-col lg:flex-row gap-8 overflow-y-auto">
+<main class="flex-1 p-6 lg:p-8 flex flex-col lg:flex-row gap-8 overflow-y-auto" id="live-view">
 <!-- Left Column: Video Feed (60%) -->
 <section class="lg:w-[60%] flex flex-col gap-6">
 <!-- Camera Feed Container -->
@@ -243,21 +244,67 @@
 </div>
 </section>
 </main>
+
+<!-- TAB: Analytics View (hidden by default) -->
+<div class="flex-1 p-6 lg:p-8 flex-col gap-6 overflow-y-auto" id="analytics-view" style="display:none;">
+
+    <!-- Row 1: KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-surface-container p-4 rounded-lg border border-outline-variant text-center">
+            <div class="font-label text-xs text-on-surface-variant uppercase tracking-widest mb-2">Current Occupancy</div>
+            <div class="font-headline text-3xl text-on-surface" id="kpi-occupancy">--</div>
+        </div>
+        <div class="bg-surface-container p-4 rounded-lg border border-outline-variant text-center">
+            <div class="font-label text-xs text-on-surface-variant uppercase tracking-widest mb-2">Est. Wait Time</div>
+            <div class="font-headline text-3xl text-on-surface" id="kpi-wait">--</div>
+        </div>
+        <div class="bg-surface-container p-4 rounded-lg border border-outline-variant text-center">
+            <div class="font-label text-xs text-on-surface-variant uppercase tracking-widest mb-2">Today's Peak</div>
+            <div class="font-headline text-3xl text-on-surface" id="kpi-peak">--</div>
+        </div>
+    </div>
+
+    <!-- Row 2: Hourly Bar Chart -->
+    <div class="bg-surface-container p-6 rounded-lg border border-outline-variant mb-6">
+        <h3 class="font-label text-sm text-on-surface-variant uppercase tracking-widest mb-4">Hourly Averages (Last 7 Days)</h3>
+        <div style="height:300px;">
+            <canvas id="chart-hourly"></canvas>
+        </div>
+    </div>
+
+    <!-- Row 3: Heatmap -->
+    <div class="bg-surface-container p-6 rounded-lg border border-outline-variant mb-6">
+        <h3 class="font-label text-sm text-on-surface-variant uppercase tracking-widest mb-4">Congestion Heatmap</h3>
+        <div class="overflow-x-auto" id="heatmap-container">
+            <p class="text-on-surface-variant text-sm">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Row 4: Smart Insights -->
+    <div class="bg-surface-container p-6 rounded-lg border border-outline-variant">
+        <h3 class="font-label text-sm text-on-surface-variant uppercase tracking-widest mb-4">Smart Insights</h3>
+        <div class="flex flex-col gap-2" id="insights-container">
+            <p class="text-on-surface-variant text-sm opacity-60">Loading...</p>
+        </div>
+    </div>
+
+</div>
+
 </div>
 <!-- Bottom Horizontal Navbar (Vision-X) -->
 <nav class="w-full bg-surface-container-low border-t border-primary/30 shadow-[inset_0_0_12px_rgba(255,45,120,0.1)] px-6 py-4 flex flex-col md:flex-row items-center gap-6 z-50"><div class="flex-1 flex justify-start md:left-6 flex-col"><div class="bg-secondary/10 border border-secondary px-4 py-1.5 rounded shadow-[0_0_15px_rgba(0,255,204,0.4)] mr-2"><span class="font-headline font-black text-secondary tracking-widest uppercase text-sm drop-shadow-[0_0_5px_#00ffcc]">Vision-X</span></div><div class="text-[10px] font-label text-on-surface-variant uppercase tracking-widest mt-2 opacity-60">SYSTEM CALIBRATED</div></div>
 <!-- Branding & Meta (Vision-X) -->
 <div class="flex items-center gap-4 flex-1 md:flex-[3]">
 <!-- Desktop/Tablet Nav Links -->
-<div class="hidden md:flex items-center gap-1 bg-surface-container-high/40 backdrop-blur-md rounded-lg p-1 flex-1 w-full"><a class="flex-1 flex items-center justify-center gap-3 px-6 py-2 bg-primary-container/20 text-primary border-b-2 border-primary font-bold transition-all duration-300 font-label text-sm rounded-md" href="#"><span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>Main Dashboard</a><a class="flex-1 flex items-center justify-center gap-3 px-6 py-2 text-on-surface-variant hover:text-secondary transition-colors duration-200 hover:bg-surface-variant/50 font-label text-sm rounded-md" href="#"><span class="material-symbols-outlined text-xl">analytics</span>Advanced Analytics</a><a class="flex-1 flex items-center justify-center gap-3 px-6 py-2 text-on-surface-variant hover:text-secondary transition-colors duration-200 hover:bg-surface-variant/50 font-label text-sm rounded-md" href="#"><span class="material-symbols-outlined text-xl">info</span>Info</a></div>
+<a class="flex-1 flex items-center justify-center gap-3 px-6 py-2 bg-primary-container/20 text-primary border-b-2 border-primary font-bold transition-all duration-300 font-label text-sm rounded-md" href="#" onclick="switchTab('live-view')"><span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>Main Dashboard</a><a class="flex-1 flex items-center justify-center gap-3 px-6 py-2 text-on-surface-variant hover:text-secondary transition-colors duration-200 hover:bg-surface-variant/50 font-label text-sm rounded-md" href="#" onclick="switchTab('analytics-view')"><span class="material-symbols-outlined text-xl">analytics</span>Advanced Analytics</a><a class="flex-1 flex items-center justify-center gap-3 px-6 py-2 text-on-surface-variant hover:text-secondary transition-colors duration-200 hover:bg-surface-variant/50 font-label text-sm rounded-md" href="#"><span class="material-symbols-outlined text-xl">info</span>Info</a></div>
 </div>
 <!-- Mobile Nav Links -->
 <div class="flex md:hidden items-center justify-around w-full gap-4">
-<a class="flex flex-col items-center text-primary" href="#">
+<a class="flex flex-col items-center text-primary" href="#" onclick="switchTab('live-view')">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
 <span class="text-[10px] font-label uppercase">Dashboard</span>
 </a>
-<a class="flex flex-col items-center text-on-surface-variant" href="#">
+<a class="flex flex-col items-center text-on-surface-variant" href="#" onclick="switchTab('analytics-view')">
 <span class="material-symbols-outlined">analytics</span>
 <span class="text-[10px] font-label uppercase">Analytics</span>
 </a>
@@ -269,6 +316,8 @@
 
 
 <script>
+    // ── Clock ────────────────────────────────────────────────────
+
     function updateClock() {
         const clockElement = document.getElementById('digital-clock');
         if (!clockElement) return;
@@ -279,7 +328,7 @@
         const ampm = hours >= 12 ? 'PM' : 'AM';
 
         hours = hours % 12;
-        hours = hours ? hours : 12; // Convert 24h hour 0 to 12
+        hours = hours ? hours : 12;
         const formattedHours = String(hours).padStart(2, '0');
 
         clockElement.innerHTML = `${formattedHours}:${minutes} <span class="text-xl text-primary">${ampm}</span>`;
@@ -288,15 +337,170 @@
     function startClock() {
         updateClock();
         const now = new Date();
-        // Calculate milliseconds to the next exact minute roll-over
         const delay = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
         setTimeout(() => {
             updateClock();
-            setInterval(updateClock, 60000); // Update every 60 seconds
+            setInterval(updateClock, 60000);
         }, delay);
     }
 
-    // Initialize clock aligned to minute boundary
     startClock();
+
+    // ── Tab Switching ────────────────────────────────────────────
+
+    function switchTab(tabId) {
+        const liveView = document.getElementById('live-view');
+        const analyticsView = document.getElementById('analytics-view');
+
+        if (tabId === 'live-view') {
+            liveView.style.display = 'flex';
+            analyticsView.style.display = 'none';
+        } else {
+            liveView.style.display = 'none';
+            analyticsView.style.display = 'flex';
+        }
+    }
+
+    // ── Analytics Rendering (called from Python via runJavaScript) ─
+
+    function renderAnalytics(data) {
+        if (data.error) {
+            console.error('Analytics error:', data.message);
+            return;
+        }
+        renderKPIs(data.kpis);
+        renderHourlyChart(data.charts.hourly_week);
+        renderHeatmap(data.charts.heatmap);
+        renderInsights(data.insights);
+    }
+
+    // ── KPIs ─────────────────────────────────────────────────────
+
+    function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = value;
+    }
+
+    function renderKPIs(kpis) {
+        setText('kpi-occupancy', kpis.current_occupancy);
+        setText('kpi-wait', kpis.estimated_wait + ' mins');
+
+        const peak = kpis.today_peak;
+        if (peak && !peak.error) {
+            setText('kpi-peak', `${peak.peak_count} at ${peak.peak_time}`);
+        } else {
+            setText('kpi-peak', 'No data');
+        }
+    }
+
+    // ── Hourly Chart ─────────────────────────────────────────────
+
+    let hourlyChartInstance = null;
+
+    function renderHourlyChart(hourlyData) {
+        const canvas = document.getElementById('chart-hourly');
+        if (!canvas) return;
+
+        const entries = Object.entries(hourlyData)
+            .sort(([a], [b]) => a.localeCompare(b));
+
+        const labels = entries.map(([key]) => {
+            const parts = key.split(' ');
+            return parts[1] ? parts[1] + ':00' : key;
+        });
+        const values = entries.map(([, val]) => val);
+
+        if (hourlyChartInstance) hourlyChartInstance.destroy();
+
+        hourlyChartInstance = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Avg People',
+                    data: values,
+                    backgroundColor: 'rgba(255, 45, 120, 0.6)',
+                    borderColor: '#ff2d78',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: '#a0a0b0' } },
+                    x: { ticks: { color: '#a0a0b0', maxRotation: 45 } }
+                },
+                plugins: {
+                    legend: { labels: { color: '#e0e0e0' } }
+                }
+            }
+        });
+    }
+
+    // ── Heatmap ──────────────────────────────────────────────────
+
+    function renderHeatmap(heatmapData) {
+        const container = document.getElementById('heatmap-container');
+        if (!container) return;
+
+        if (heatmapData.insufficient) {
+            container.innerHTML = `<p class="text-on-surface-variant text-sm">${heatmapData.message}</p>`;
+            return;
+        }
+
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const hours = [];
+        for (let h = 0; h <= 23; h++) hours.push(String(h).padStart(2, '0'));
+
+        let maxVal = 0;
+        days.forEach(d => hours.forEach(h => {
+            const v = heatmapData[d] && heatmapData[d][h] || 0;
+            if (v > maxVal) maxVal = v;
+        }));
+
+        let html = '<table class="w-full text-xs border-separate border-spacing-0"><thead><tr><th class="p-1 text-on-surface-variant font-label">Day</th>';
+        hours.forEach(h => html += `<th class="p-1 text-on-surface-variant font-label">${h}</th>`);
+        html += '</tr></thead><tbody>';
+
+        days.forEach(d => {
+            html += `<tr><td class="p-1 font-bold text-on-surface-variant">${d}</td>`;
+            hours.forEach(h => {
+                const v = heatmapData[d] && heatmapData[d][h] || 0;
+                const intensity = maxVal > 0 ? v / maxVal : 0;
+                const r = Math.round(10 + intensity * 245);
+                const g = Math.round(10 + intensity * 25);
+                const b = Math.round(24 + intensity * 100);
+                html += `<td class="p-1 text-center rounded-sm" style="background: rgb(${r},${g},${b}); color: ${intensity > 0.5 ? '#fff' : '#a0a0b0'};">${v.toFixed(1)}</td>`;
+            });
+            html += '</tr>';
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    // ── Insights ─────────────────────────────────────────────────
+
+    function renderInsights(insights) {
+        const container = document.getElementById('insights-container');
+        if (!container) return;
+
+        let html = '';
+        insights.forEach(i => {
+            if (i.ready) {
+                html += `<div class="text-sm text-on-surface flex items-start gap-2 py-1">
+                    <span class="text-secondary mt-0.5">&#10132;</span>
+                    <span>${i.text}</span>
+                </div>`;
+            } else {
+                html += `<div class="text-sm text-on-surface-variant opacity-60 flex items-start gap-2 py-1">
+                    <span class="mt-0.5">&#9203;</span>
+                    <span>${i.reason}</span>
+                </div>`;
+            }
+        });
+        container.innerHTML = html || '<p class="text-on-surface-variant text-sm opacity-60">No insights available yet.</p>';
+    }
 </script>
 </body></html>
