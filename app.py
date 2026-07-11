@@ -80,7 +80,7 @@ class DashboardWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Monay-1: Waiting Time Estimator")
         self.resize(1280, 720) # Dashboard default size
-        self.worker = VisionWorker(model_name="yolo11n.pt", camera_index=0)
+        self.worker = VisionWorker()
         self.metrics_repository = MetricsRepository()
 
         # 1. Setup the Web Engine (Chromium Browser inside PyQt)

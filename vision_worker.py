@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import  numpy as np
 import cv2
 from ultralytics import YOLO
+from config import Config
 
 @dataclass
 class DashboardPayload:
@@ -12,10 +13,10 @@ class DashboardPayload:
     ui_human_count: int
 
 class VisionWorker:
-    def __init__(self, model_name="yolo11n.pt", camera_index=0):
-        self.model_name = model_name
+    def __init__(self):
+        self.model_name = Config.MODEL_NAME
         self.detection_classes = [0]
-        self.camera_index = camera_index
+        self.camera_index = Config.CAMERA_INDEX
         self.capture_backend = [cv2.CAP_DSHOW, cv2.CAP_MSMF]
         self.model = None
         self.cap = None
