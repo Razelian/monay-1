@@ -296,15 +296,15 @@
 <!-- Branding & Meta (Vision-X) -->
 <div class="flex items-center gap-4 flex-1 md:flex-[3]">
 <!-- Desktop/Tablet Nav Links -->
-<a class="flex-1 flex items-center justify-center gap-3 px-6 py-2 bg-primary-container/20 text-primary border-b-2 border-primary font-bold transition-all duration-300 font-label text-sm rounded-md" href="#" onclick="switchTab('live-view')"><span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>Main Dashboard</a><a class="flex-1 flex items-center justify-center gap-3 px-6 py-2 text-on-surface-variant hover:text-secondary transition-colors duration-200 hover:bg-surface-variant/50 font-label text-sm rounded-md" href="#" onclick="switchTab('analytics-view')"><span class="material-symbols-outlined text-xl">analytics</span>Advanced Analytics</a><a class="flex-1 flex items-center justify-center gap-3 px-6 py-2 text-on-surface-variant hover:text-secondary transition-colors duration-200 hover:bg-surface-variant/50 font-label text-sm rounded-md" href="#"><span class="material-symbols-outlined text-xl">info</span>Info</a></div>
+<a id="btn-live" class="flex-1 flex items-center justify-center gap-3 px-6 py-2 bg-primary-container/20 text-primary border-b-2 border-primary font-bold transition-all duration-300 font-label text-sm rounded-md" href="#" onclick="switchTab('live-view')"><span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>Main Dashboard</a><a id="btn-analytics" class="flex-1 flex items-center justify-center gap-3 px-6 py-2 text-on-surface-variant hover:text-secondary transition-colors duration-200 hover:bg-surface-variant/50 font-label text-sm rounded-md" href="#" onclick="switchTab('analytics-view')"><span class="material-symbols-outlined text-xl">analytics</span>Advanced Analytics</a><a id="btn-info" class="flex-1 flex items-center justify-center gap-3 px-6 py-2 text-on-surface-variant hover:text-secondary transition-colors duration-200 hover:bg-surface-variant/50 font-label text-sm rounded-md" href="#"><span class="material-symbols-outlined text-xl">info</span>Info</a></div>
 </div>
 <!-- Mobile Nav Links -->
 <div class="flex md:hidden items-center justify-around w-full gap-4">
-<a class="flex flex-col items-center text-primary" href="#" onclick="switchTab('live-view')">
+<a id="btn-live-mobile" class="flex flex-col items-center text-primary" href="#" onclick="switchTab('live-view')">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
 <span class="text-[10px] font-label uppercase">Dashboard</span>
 </a>
-<a class="flex flex-col items-center text-on-surface-variant" href="#" onclick="switchTab('analytics-view')">
+<a id="btn-analytics-mobile" class="flex flex-col items-center text-on-surface-variant" href="#" onclick="switchTab('analytics-view')">
 <span class="material-symbols-outlined">analytics</span>
 <span class="text-[10px] font-label uppercase">Analytics</span>
 </a>
@@ -358,6 +358,28 @@
         } else {
             liveView.style.display = 'none';
             analyticsView.style.display = 'flex';
+        }
+
+        // Update desktop button styles
+        setActiveButton('btn-live', tabId === 'live-view');
+        setActiveButton('btn-analytics', tabId === 'analytics-view');
+
+        // Update mobile button styles
+        setActiveButton('btn-live-mobile', tabId === 'live-view');
+        setActiveButton('btn-analytics-mobile', tabId === 'analytics-view');
+    }
+
+    function setActiveButton(id, isActive) {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+
+        if (isActive) {
+            // Desktop / mobile share these — the CSS cascade handles the rest
+            btn.classList.add('bg-primary-container/20', 'text-primary', 'border-b-2', 'border-primary', 'font-bold');
+            btn.classList.remove('text-on-surface-variant', 'hover:text-secondary', 'transition-colors', 'duration-200', 'hover:bg-surface-variant/50');
+        } else {
+            btn.classList.add('text-on-surface-variant', 'hover:text-secondary', 'transition-colors', 'duration-200', 'hover:bg-surface-variant/50');
+            btn.classList.remove('bg-primary-container/20', 'text-primary', 'border-b-2', 'border-primary', 'font-bold');
         }
     }
 
