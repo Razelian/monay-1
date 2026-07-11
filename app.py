@@ -4,6 +4,7 @@ import time
 import base64
 import cv2
 import json
+from datetime import datetime
 from PyQt6.QtCore import QThread, pyqtSignal, QUrl, pyqtSlot
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6.QtWebEngineWidgets import QWebEngineView
@@ -110,7 +111,6 @@ class DashboardWindow(QMainWindow):
         self.analytics_thread = AnalyticsThread(self.metrics_repository)
         self.analytics_thread.analytics_ready_signal.connect(self.on_analytics_ready)
         self.analytics_thread.start()
-        self.analytics_thread.run()
 
     @pyqtSlot(str)
     def on_analytics_ready(self, json_payload):
@@ -180,18 +180,33 @@ class AnalyticsThread(QThread):
 
     def run(self):
         try:
-            # Critical Point 1: Reading from disk (Handled mostly in MetricsRepository, but we catch unexpected errors here)
-            averages = self.metrics_repository.get_hourly_averages()
+            latest = self.metrics_repository.get_latest_count()
 
-            # Critical Point 2: JSON Serialization. If data is malformed, this will throw a TypeError.
-            json_payload = json.dumps(averages)
+            payload = {
+                "kpis": {
+                    "current_occupancy": latest,
+                    "estimated_wait": round(latest * Config.AVERAGE_WAITING_TIME, 1),
+                    "today_peak": self.metrics_repository.get_today_peak()
+                },
+                "charts": {
+                    "hourly_week": self.metrics_repository.get_hourly_averages(
+                        days=Config.DEFAULT_CHART_DAYS
+                    ),
+                    "heatmap": self.metrics_repository.get_heatmap_data()
+                },
+                "insights": [
+                    self.metrics_repository.get_busiest_hour_this_week(),
+                    self.metrics_repository.get_current_vs_historical(latest)
+                ]
+            }
 
-            # Emit success
-            self.analytics_ready_signal.emit(json_payload)
+            self.analytics_ready_signal.emit(json.dumps(payload))
 
         except Exception as e:
-            # Catch-all ensures the thread doesn't die silently.
-            raise RuntimeError (f"Analytics background processing failed: {str(e)}")
+            self.analytics_ready_signal.emit(json.dumps({
+                "error": True,
+                "message": f"Analytics processing failed: {str(e)}"
+            }))
 
 
 
