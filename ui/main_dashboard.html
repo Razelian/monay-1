@@ -6,6 +6,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Sora:wght@400;600;700;800;900&amp;family=Space+Grotesk:wght@400;500;700&amp;display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
 <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
@@ -127,12 +129,451 @@
         }
 
         .grid-bg {
-            background-image:
-                linear-gradient(to right, rgba(255, 45, 120, 0.05) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 45, 120, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-    </style>
+                background-image:
+                    linear-gradient(to right, rgba(255, 45, 120, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 45, 120, 0.05) 1px, transparent 1px);
+                background-size: 40px 40px;
+            }
+
+            /* ── Info Tab scoped styles ─────────────────────────── */
+            .info-tab-view {
+                --q-bg: #07090f;
+                --q-panel: rgba(14,17,32,0.65);
+                --q-panel-solid: #0e1120;
+                --q-border-teal: #00d0ad;
+                --q-accent-teal: #00f5d4;
+                --q-pink: #e0227a;
+                --q-text-light: #f3f5f8;
+                --q-text-muted: #a9b2c3;
+                --q-card-bg: rgba(20,24,40,0.55);
+                --q-card-border: #33394a;
+                box-sizing: border-box;
+                background:
+                    radial-gradient(circle at 12% 8%, rgba(0,208,173,0.14), transparent 42%),
+                    radial-gradient(circle at 88% 6%, rgba(224,34,122,0.10), transparent 40%),
+                    radial-gradient(circle at 90% 95%, rgba(0,208,173,0.08), transparent 45%),
+                    var(--q-bg);
+                color: var(--q-text-light);
+                font-family: 'Inter', sans-serif;
+                line-height: 1.55;
+                min-height: 0;
+                overflow-y: auto;
+                max-height: calc(100vh - 160px);
+            }
+            .info-tab-view * { box-sizing: border-box; }
+            .info-tab-view h1,
+            .info-tab-view h2,
+            .info-tab-view h3,
+            .info-tab-view .display {
+                font-family: 'Oxanium', sans-serif;
+                font-weight: 700;
+                margin: 0;
+            }
+            .info-tab-view .wrap {
+                max-width: 1720px;
+                margin: 0 auto;
+                padding: 28px 32px 96px;
+                display: grid;
+                grid-template-columns: 1.55fr 1fr;
+                gap: 32px;
+                align-items: start;
+            }
+            .info-tab-view .panel-left {
+                position: relative;
+                background: var(--q-panel);
+                border: 1px solid rgba(0,208,173,0.35);
+                border-radius: 24px;
+                padding: 52px 48px 56px;
+                overflow: hidden;
+                box-shadow: 0 30px 80px -40px rgba(0,208,173,0.25), inset 0 1px 0 rgba(255,255,255,0.03);
+            }
+            .info-tab-view .panel-left::before {
+                content: "";
+                position: absolute;
+                top: -1px; left: -1px;
+                width: 52px; height: 52px;
+                border-top: 2px solid var(--q-accent-teal);
+                border-left: 2px solid var(--q-accent-teal);
+                border-radius: 24px 0 0 0;
+                opacity: 0.7;
+            }
+            .info-tab-view .eyebrow {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: var(--q-accent-teal);
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 0.18em;
+                margin-bottom: 32px;
+                text-transform: uppercase;
+            }
+            .info-tab-view .eyebrow::before {
+                content: "";
+                width: 7px; height: 7px;
+                border-radius: 50%;
+                background: var(--q-accent-teal);
+                box-shadow: 0 0 0 4px rgba(0,245,212,0.18);
+            }
+            .info-tab-view .hero {
+                display: flex;
+                align-items: center;
+                gap: 26px;
+                margin-bottom: 18px;
+            }
+            .info-tab-view .logo-box {
+                flex: 0 0 auto;
+                width: 96px;
+                height: 96px;
+                border-radius: 22px;
+                background: linear-gradient(160deg, rgba(0,208,173,0.16), rgba(0,208,173,0.02));
+                border: 1.5px solid rgba(0,208,173,0.55);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                box-shadow: 0 0 0 1px rgba(0,245,212,0.06), 0 18px 40px -18px rgba(0,208,173,0.55);
+            }
+            .info-tab-view .logo-box svg { width: 52px; height: 52px; }
+            .info-tab-view .hero-title {
+                font-size: clamp(38px, 5vw, 58px);
+                background: linear-gradient(135deg, var(--q-accent-teal) 10%, #6cf3d6 55%, var(--q-border-teal) 100%);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+                line-height: 1;
+                letter-spacing: -0.01em;
+            }
+            .info-tab-view .tagline {
+                font-size: 19px;
+                color: var(--q-text-muted);
+                margin: 10px 0 30px;
+                line-height: 1.5;
+                font-weight: 500;
+            }
+            .info-tab-view .description {
+                font-size: 15.5px;
+                color: var(--q-text-muted);
+                max-width: 760px;
+                margin-bottom: 48px;
+            }
+            .info-tab-view .description p { margin: 0 0 16px; }
+            .info-tab-view .description b {
+                font-weight: 700;
+                color: var(--q-text-light);
+            }
+            .info-tab-view .feature-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px 36px;
+                margin-bottom: 56px;
+            }
+            .info-tab-view .feature {
+                display: flex;
+                gap: 18px;
+                padding: 6px;
+                border-radius: 16px;
+                transition: transform .25s ease;
+            }
+            .info-tab-view .feature:hover { transform: translateY(-2px); }
+            .info-tab-view .feature-icon {
+                flex: 0 0 auto;
+                width: 58px;
+                height: 58px;
+                border-radius: 16px;
+                border: 1.5px solid rgba(0,208,173,0.45);
+                background: linear-gradient(160deg, rgba(0,208,173,0.14), rgba(14,17,32,0.4));
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: border-color .25s ease, box-shadow .25s ease;
+            }
+            .info-tab-view .feature-icon svg {
+                width: 26px; height: 26px;
+                stroke: var(--q-accent-teal);
+                color: var(--q-accent-teal);
+            }
+            .info-tab-view .feature:hover .feature-icon {
+                border-color: var(--q-accent-teal);
+                box-shadow: 0 0 0 4px rgba(0,245,212,0.10);
+            }
+            .info-tab-view .feature-copy h3 {
+                font-family: 'Oxanium', sans-serif;
+                font-weight: 600;
+                font-size: 14.5px;
+                color: var(--q-accent-teal);
+                letter-spacing: 0.06em;
+                margin-bottom: 8px;
+            }
+            .info-tab-view .feature-copy p {
+                font-size: 14px;
+                color: var(--q-text-muted);
+                margin: 0;
+                max-width: 280px;
+            }
+            .info-tab-view .stack-label {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: var(--q-accent-teal);
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: 0.18em;
+                text-transform: uppercase;
+                margin-bottom: 22px;
+            }
+            .info-tab-view .stack-label::before {
+                content: "";
+                width: 7px; height: 7px;
+                border-radius: 50%;
+                background: var(--q-accent-teal);
+                box-shadow: 0 0 0 4px rgba(0,245,212,0.18);
+            }
+            .info-tab-view .stack-pills {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .info-tab-view .pill {
+                background: var(--q-card-bg);
+                border: 1px solid var(--q-card-border);
+                border-radius: 12px;
+                padding: 11px 20px 11px 16px;
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--q-text-muted);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                transition: border-color .2s ease, transform .2s ease, color .2s ease, background .2s ease;
+            }
+            .info-tab-view .pill i,
+            .info-tab-view .pill img {
+                font-size: 17px; width: 18px; height: 18px; object-fit: contain;
+            }
+            .info-tab-view .pill:hover {
+                border-color: var(--q-accent-teal);
+                color: var(--q-text-light);
+                background: rgba(0,208,173,0.08);
+                transform: translateY(-2px);
+            }
+            .info-tab-view .panel-right {
+                display: flex;
+                flex-direction: column;
+                gap: 24px;
+            }
+            .info-tab-view .team-panel {
+                position: relative;
+                background: var(--q-panel);
+                border: 1px solid rgba(0,208,173,0.35);
+                border-radius: 24px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                height: 800px;
+                box-shadow: 0 30px 80px -40px rgba(224,34,122,0.20), inset 0 1px 0 rgba(255,255,255,0.03);
+            }
+            .info-tab-view .team-panel::before {
+                content: "";
+                position: absolute;
+                top: -1px; right: -1px;
+                width: 52px; height: 52px;
+                border-top: 2px solid var(--q-pink);
+                border-right: 2px solid var(--q-pink);
+                border-radius: 0 24px 0 0;
+                opacity: 0.6;
+            }
+            .info-tab-view .team-header {
+                text-align: center;
+                padding: 38px 24px 18px;
+                flex: 0 0 auto;
+            }
+            .info-tab-view .team-header .kicker {
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.18em;
+                text-transform: uppercase;
+                color: var(--q-pink);
+                margin-bottom: 10px;
+            }
+            .info-tab-view .team-header h2 {
+                font-size: clamp(28px, 4vw, 38px);
+                color: var(--q-text-light);
+                letter-spacing: -0.01em;
+            }
+            .info-tab-view .team-header p {
+                font-size: 15px;
+                color: var(--q-accent-teal);
+                margin-top: 8px;
+            }
+            .info-tab-view .team-scroll {
+                flex: 1 1 auto;
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding: 6px 22px 30px;
+                scrollbar-width: thin;
+                scrollbar-color: var(--q-border-teal) transparent;
+                mask-image: linear-gradient(to bottom, transparent 0, black 14px, black calc(100% - 14px), transparent 100%);
+            }
+            .info-tab-view .team-scroll::-webkit-scrollbar { width: 7px; }
+            .info-tab-view .team-scroll::-webkit-scrollbar-track { background: transparent; }
+            .info-tab-view .team-scroll::-webkit-scrollbar-thumb {
+                background: var(--q-border-teal);
+                border-radius: 8px;
+            }
+            .info-tab-view .team-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+            .info-tab-view .member-card {
+                position: relative;
+                background: var(--q-card-bg);
+                border: 1px solid var(--q-card-border);
+                border-radius: 18px;
+                padding: 24px 16px 20px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                cursor: pointer;
+                transition: border-color .28s ease, background .28s ease, transform .28s ease, box-shadow .28s ease;
+            }
+            .info-tab-view .member-card:hover {
+                border-color: var(--q-accent-teal);
+                background: linear-gradient(160deg, rgba(0,208,173,0.16), rgba(224,34,122,0.06));
+                transform: translateY(-5px);
+                box-shadow: 0 18px 40px -18px rgba(0,208,173,0.45);
+            }
+            .info-tab-view .avatar {
+                width: 78px;
+                height: 78px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Oxanium', sans-serif;
+                font-weight: 700;
+                font-size: 26px;
+                margin-bottom: 14px;
+                border: 2px solid var(--q-border-teal);
+                background: radial-gradient(circle at 30% 25%, rgba(0,208,173,0.30), rgba(0,208,173,0.05));
+                transition: border-color .28s ease, box-shadow .28s ease, transform .28s ease;
+            }
+            .info-tab-view .member-card:hover .avatar {
+                border-color: var(--q-pink);
+                box-shadow: 0 0 0 5px rgba(224,34,122,0.14);
+                transform: scale(1.06);
+            }
+            .info-tab-view .avatar span {
+                background: linear-gradient(180deg, var(--q-border-teal), var(--q-accent-teal));
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+            }
+            .info-tab-view .member-name {
+                font-family: 'Inter', sans-serif;
+                font-weight: 700;
+                font-size: 15px;
+                color: var(--q-text-light);
+                margin-bottom: 6px;
+            }
+            .info-tab-view .member-role {
+                font-family: 'Inter', sans-serif;
+                font-weight: 700;
+                font-size: 12px;
+                letter-spacing: 0.02em;
+                color: var(--q-pink);
+                margin-bottom: 11px;
+                transition: color .28s ease;
+            }
+            .info-tab-view .member-card:hover .member-role { color: var(--q-accent-teal); }
+            .info-tab-view .member-desc {
+                font-size: 12px;
+                color: var(--q-text-muted);
+                line-height: 1.5;
+                margin-bottom: 12px;
+            }
+            .info-tab-view .socials {
+                display: flex;
+                gap: 9px;
+                margin-top: auto;
+            }
+            .info-tab-view .social-icon {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                background: var(--q-panel-solid);
+                border: 1px solid var(--q-card-border);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--q-text-muted);
+                transition: border-color .2s ease, color .2s ease, transform .2s ease;
+            }
+            .info-tab-view .social-icon svg { width: 14px; height: 14px; }
+            .info-tab-view .social-icon:hover {
+                border-color: var(--q-accent-teal);
+                color: var(--q-accent-teal);
+                transform: translateY(-2px);
+            }
+            .info-tab-view .footer-bar {
+                background: var(--q-panel-solid);
+                border: 1px solid rgba(0,208,173,0.35);
+                border-radius: 22px;
+                padding: 26px 30px;
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+            .info-tab-view .footer-icon {
+                flex: 0 0 auto;
+                width: 44px; height: 44px;
+                border-radius: 12px;
+                background: rgba(224,34,122,0.12);
+                border: 1px solid rgba(224,34,122,0.4);
+                display: flex; align-items: center; justify-content: center;
+            }
+            .info-tab-view .footer-icon svg { width: 22px; height: 22px; stroke: var(--q-pink); }
+            .info-tab-view .footer-body { flex: 1 1 auto; min-width: 0; }
+            .info-tab-view .footer-bar .headline {
+                color: var(--q-pink);
+                font-weight: 800;
+                font-size: 16px;
+                margin-bottom: 6px;
+            }
+            .info-tab-view .footer-bar .sub {
+                font-size: 13.5px;
+                color: var(--q-text-muted);
+            }
+            .info-tab-view .footer-bar .sub b { color: var(--q-text-light); }
+            .info-tab-view .footer-meta {
+                flex: 0 0 auto;
+                text-align: right;
+                padding-left: 20px;
+                border-left: 1px solid var(--q-card-border);
+                font-size: 12.5px;
+                color: var(--q-text-muted);
+            }
+            .info-tab-view .footer-meta .date {
+                color: var(--q-text-light);
+                font-weight: 700;
+                font-size: 14px;
+                display: block;
+                margin-top: 4px;
+            }
+            @media (max-width: 1080px) {
+                .info-tab-view .wrap { grid-template-columns: 1fr; }
+                .info-tab-view .team-panel { height: 640px; }
+                .info-tab-view .feature-grid { grid-template-columns: 1fr; }
+                .info-tab-view .footer-bar { flex-wrap: wrap; }
+                .info-tab-view .footer-meta { border-left: none; padding-left: 0; text-align: left; }
+            }
+            @media (max-width: 600px) {
+                .info-tab-view .team-grid { grid-template-columns: 1fr; }
+                .info-tab-view .hero { flex-direction: column; align-items: flex-start; }
+            }
+        </style>
 </head>
 <body class="min-h-screen flex flex-col grid-bg overflow-x-hidden">
 <!-- TopAppBar -->
@@ -290,13 +731,195 @@
 
 </div>
 
+<!-- TAB: Info View (hidden by default) -->
+<div class="flex-1 info-tab-view flex-col" id="info-view" style="display:none;">
+
+<div class="wrap">
+
+  <section class="panel-left">
+    <div class="eyebrow">Project Information</div>
+
+    <div class="hero">
+      <div class="logo-box" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none">
+          <rect x="5" y="14" width="7" height="20" rx="2" stroke="#00f5d4" stroke-width="2"/>
+          <rect x="15" y="8" width="7" height="26" rx="2" stroke="#00f5d4" stroke-width="2"/>
+          <rect x="25" y="17" width="7" height="17" rx="2" stroke="#00f5d4" stroke-width="2"/>
+          <circle cx="38.5" cy="15.5" r="7" stroke="#00f5d4" stroke-width="2"/>
+          <line x1="43.5" y1="20.5" x2="47" y2="24" stroke="#00f5d4" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1 class="hero-title">QueueThink</h1>
+    </div>
+
+    <p class="tagline">Intelligent Queue Analytics Powered by Computer Vision</p>
+
+    <div class="description">
+      <p><b>QueueThink</b> is a cutting-edge, real-time computer vision application designed to transform queue management. By leveraging advanced object detection models and a highly responsive, decoupled architecture, the system provides accurate queue monitoring and dynamic wait time estimations.</p>
+      <p>The project marries high-performance backend AI processing with an engaging, low-latency frontend interface. This document outlines the core functionality, current dashboard features, the underlying technology stack, and the strategic roadmap for future analytics expansion.</p>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="feature-copy">
+          <h3>REAL-TIME DETECTION</h3>
+          <p>Detects and counts people in queue in real-time using AI visual models.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+        </div>
+        <div class="feature-copy">
+          <h3>ACCURATE &amp; RELIABLE</h3>
+          <p>High accuracy detection with robust performance in various environments.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9 2h6"/></svg>
+        </div>
+        <div class="feature-copy">
+          <h3>DYNAMIC ESTIMATION</h3>
+          <p>Calculated estimated waiting time dynamically based on live data.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+        </div>
+        <div class="feature-copy">
+          <h3>DATA EXPORT</h3>
+          <p>Export historical data and reports in CSV and PDF formats.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M11 20V4"/><path d="M18 20v-7"/></svg>
+        </div>
+        <div class="feature-copy">
+          <h3>SMART ANALYTICS</h3>
+          <p>Provides insights and analytics to optimize operations and staffing.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c2.5 2.5 4 6 4 10 0 2-1 4-4 8-3-4-4-6-4-8 0-4 1.5-7.5 4-10Z"/><path d="M9.5 15.5 6 17l1-3.8"/><path d="M14.5 15.5 18 17l-1-3.8"/><circle cx="12" cy="10" r="1.4" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div class="feature-copy">
+          <h3>FUTURE READY</h3>
+          <p>Designed with scalability for advanced analytics and integrations.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stack-label">Technology Stack</div>
+
+    <div class="stack-pills">
+      <div class="pill"><i class="devicon-python-plain colored"></i><span>Python</span></div>
+      <div class="pill"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/opencv/opencv-original.svg" alt=""><span>OpenCV</span></div>
+      <div class="pill"><img src="https://upload.wikimedia.org/wikipedia/commons/3/38/Ultralytics_Logotype_Original.svg" alt=""><span>YOLO</span></div>
+      <div class="pill"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e6/Qt_logo_2016.svg" alt=""><span>PyQt6</span></div>
+      <div class="pill"><i class="devicon-html5-plain colored"></i><span>HTML5</span></div>
+      <div class="pill"><img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Tailwind_CSS_Logo.svg" alt=""><span>Tailwind CSS</span></div>
+      <div class="pill"><i class="devicon-javascript-plain colored"></i><span>JavaScript</span></div>
+    </div>
+  </section>
+
+  <section class="panel-right">
+
+    <div class="team-panel">
+      <div class="team-header">
+        <h2>Meet the Team</h2>
+        <p>The developers behind QueueThink</p>
+      </div>
+
+      <div class="team-scroll">
+        <div class="team-grid">
+
+          <div class="member-card">
+            <div class="avatar"><span>BJ</span></div>
+            <div class="member-name">Brian Angelo S. Jardiel</div>
+            <div class="member-role">Project Lead / System Developer</div>
+            <div class="member-desc">Leads the development of the system architecture, backend logic, and integration of core application components.</div>
+          </div>
+
+          <div class="member-card">
+            <div class="avatar"><span>JB</span></div>
+            <div class="member-name">John Benedict G. Bigael</div>
+            <div class="member-role">UI/UX Designer</div>
+            <div class="member-desc">Designs intuitive user interfaces and interactive experiences.</div>
+          </div>
+
+          <div class="member-card">
+            <div class="avatar"><span>DD</span></div>
+            <div class="member-name">Divine Nazareth G. De Jesus</div>
+            <div class="member-role">UI/UX Designer</div>
+            <div class="member-desc">Creates visually appealing layouts, icons, and interface components.</div>
+          </div>
+
+          <div class="member-card">
+            <div class="avatar"><span>LI</span></div>
+            <div class="member-name">Liza Marie C. Inson</div>
+            <div class="member-role">Quality Assurance &amp; Testing</div>
+            <div class="member-desc">Verifies system functionality through comprehensive testing, identifies issues, and ensures reliable user experience.</div>
+          </div>
+
+          <div class="member-card">
+            <div class="avatar"><span>KR</span></div>
+            <div class="member-name">Kristine Evita Alyana Reyes</div>
+            <div class="member-role">Technical Documentation Team</div>
+            <div class="member-desc">Develops and maintains technical documentation, user guides, and project records.</div>
+          </div>
+
+          <div class="member-card">
+            <div class="avatar"><span>JI</span></div>
+            <div class="member-name">Jenzen A. Ison</div>
+            <div class="member-role">Technical Documentation Team</div>
+            <div class="member-desc">Develops and maintains technical documentation, user guides, and project records.</div>
+          </div>
+
+          <div class="member-card" style="grid-column: 1 / -1; max-width:260px; margin:0 auto;">
+            <div class="avatar"><span>JS</span></div>
+            <div class="member-name">Jorge Benedict P. Soliveres</div>
+            <div class="member-role">Technical Documentation Team</div>
+            <div class="member-desc">Develops and maintains technical documentation, user guides, and project records.</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bar">
+      <div class="footer-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5 5 0 0 0-7.6-.6L12 5.2l-1.2-1.2a5 5 0 0 0-7.6 6.4c.4.6.9 1.1 1.4 1.6L12 20l7.4-8a5.1 5.1 0 0 0 1.4-7.4Z"/></svg>
+      </div>
+      <div class="footer-body">
+        <div class="headline">Built with passion, powered by Image Processing.</div>
+        <div class="sub"><b>QueueThink</b> aims to revolutionize queue management with intelligent automation and real-time insights.</div>
+      </div>
+      <div class="footer-meta">
+        Project Deployment
+        <span class="date">July 2026</span>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+</div>
+
 </div>
 <!-- Bottom Horizontal Navbar (Vision-X) -->
 <nav class="w-full bg-surface-container-low border-t border-primary/30 shadow-[inset_0_0_12px_rgba(255,45,120,0.1)] px-6 py-4 flex flex-col md:flex-row items-center gap-6 z-50"><div class="flex-1 flex justify-start md:left-6 flex-col"><div class="bg-secondary/10 border border-secondary px-4 py-1.5 rounded shadow-[0_0_15px_rgba(0,255,204,0.4)] mr-2"><span class="font-headline font-black text-secondary tracking-widest uppercase text-sm drop-shadow-[0_0_5px_#00ffcc]">Vision-X</span></div><div class="text-[10px] font-label text-on-surface-variant uppercase tracking-widest mt-2 opacity-60">SYSTEM CALIBRATED</div></div>
 <!-- Branding & Meta (Vision-X) -->
 <div class="flex items-center gap-4 flex-1 md:flex-[3]">
 <!-- Desktop/Tablet Nav Links -->
-<a id="btn-live" class="flex-1 flex items-center justify-center gap-3 px-6 py-2 bg-primary-container/20 text-primary border-b-2 border-primary font-bold transition-all duration-300 font-label text-sm rounded-md" href="#" onclick="switchTab('live-view')"><span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>Main Dashboard</a><a id="btn-analytics" class="flex-1 flex items-center justify-center gap-3 px-6 py-2 text-on-surface-variant hover:text-secondary transition-colors duration-200 hover:bg-surface-variant/50 font-label text-sm rounded-md" href="#" onclick="switchTab('analytics-view')"><span class="material-symbols-outlined text-xl">analytics</span>Advanced Analytics</a><a id="btn-info" class="flex-1 flex items-center justify-center gap-3 px-6 py-2 text-on-surface-variant hover:text-secondary transition-colors duration-200 hover:bg-surface-variant/50 font-label text-sm rounded-md" href="#"><span class="material-symbols-outlined text-xl">info</span>Info</a></div>
+<a id="btn-live" class="flex-1 flex items-center justify-center gap-3 px-6 py-2 bg-primary-container/20 text-primary border-b-2 border-primary font-bold transition-all duration-300 font-label text-sm rounded-md" href="#" onclick="switchTab('live-view')"><span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>Main Dashboard</a><a id="btn-analytics" class="flex-1 flex items-center justify-center gap-3 px-6 py-2 text-on-surface-variant hover:text-secondary transition-colors duration-200 hover:bg-surface-variant/50 font-label text-sm rounded-md" href="#" onclick="switchTab('analytics-view')"><span class="material-symbols-outlined text-xl">analytics</span>Advanced Analytics</a><a id="btn-info" class="flex-1 flex items-center justify-center gap-3 px-6 py-2 text-on-surface-variant hover:text-secondary transition-colors duration-200 hover:bg-surface-variant/50 font-label text-sm rounded-md" href="#" onclick="switchTab('info-view')"><span class="material-symbols-outlined text-xl">info</span>Info</a></div>
 </div>
 <!-- Mobile Nav Links -->
 <div class="flex md:hidden items-center justify-around w-full gap-4">
@@ -307,6 +930,10 @@
 <a id="btn-analytics-mobile" class="flex flex-col items-center text-on-surface-variant" href="#" onclick="switchTab('analytics-view')">
 <span class="material-symbols-outlined">analytics</span>
 <span class="text-[10px] font-label uppercase">Analytics</span>
+</a>
+<a id="btn-info-mobile" class="flex flex-col items-center text-on-surface-variant" href="#" onclick="switchTab('info-view')">
+<span class="material-symbols-outlined">info</span>
+<span class="text-[10px] font-label uppercase">Info</span>
 </a>
 </div>
 <!-- CTA Button (Upgrade Access) -->
@@ -351,22 +978,31 @@
     function switchTab(tabId) {
         const liveView = document.getElementById('live-view');
         const analyticsView = document.getElementById('analytics-view');
+        const infoView = document.getElementById('info-view');
 
+        // Hide all first
+        liveView.style.display = 'none';
+        analyticsView.style.display = 'none';
+        infoView.style.display = 'none';
+
+        // Show the selected tab
         if (tabId === 'live-view') {
             liveView.style.display = 'flex';
-            analyticsView.style.display = 'none';
-        } else {
-            liveView.style.display = 'none';
+        } else if (tabId === 'analytics-view') {
             analyticsView.style.display = 'flex';
+        } else if (tabId === 'info-view') {
+            infoView.style.display = 'block';
         }
 
         // Update desktop button styles
         setActiveButton('btn-live', tabId === 'live-view');
         setActiveButton('btn-analytics', tabId === 'analytics-view');
+        setActiveButton('btn-info', tabId === 'info-view');
 
         // Update mobile button styles
         setActiveButton('btn-live-mobile', tabId === 'live-view');
         setActiveButton('btn-analytics-mobile', tabId === 'analytics-view');
+        setActiveButton('btn-info-mobile', tabId === 'info-view');
     }
 
     function setActiveButton(id, isActive) {
