@@ -611,13 +611,10 @@
 <span class="material-symbols-outlined text-on-surface hover:text-primary cursor-pointer">fullscreen</span>
 </div>
 </div>
-<!-- Controls -->
+<!-- Today's Peak -->
 <div class="flex items-center justify-between bg-surface-container-high p-4 rounded-lg neon-border-glow-primary">
-<button class="flex items-center gap-2 bg-surface border border-primary/50 text-primary px-4 py-2 rounded font-label text-sm hover:bg-primary/20 hover:shadow-[0_0_16px_rgba(255,45,120,0.4)] transition-all">
-<span class="material-symbols-outlined text-sm">refresh</span>
-                        Reset Camera
-                    </button>
-
+<div class="font-label text-xs text-on-surface-variant uppercase tracking-widest">Today's Peak</div>
+<div class="font-headline text-lg font-bold text-on-surface" id="ui_today_peak">--</div>
 </div>
 </section>
 <!-- Right Column: Data Stack (40%) -->
@@ -636,16 +633,14 @@
 
 <div id="ui_human_count" class="font-headline text-5xl font-bold text-secondary neon-text-secondary">0</div>
 
-<div class="mt-2 text-xs text-on-surface-variant flex items-center gap-1">
-<span class="material-symbols-outlined text-[14px] text-error">trending_up</span> +3 vs avg
-                        </div>
+
 </div>
 <div class="bg-surface-container p-5 rounded-lg border border-outline-variant flex flex-col items-center">
 <div class="font-label text-xs text-on-surface-variant mb-1">Active Tellers</div>
 <div id="ui_teller_count" class="font-headline text-5xl font-bold text-on-surface">0</div>
-<div class="mt-2 text-xs text-on-surface-variant flex items-center gap-1">
+<!--<div class="mt-2 text-xs text-on-surface-variant flex items-center gap-1">
 <span class="material-symbols-outlined text-[14px] text-secondary">trending_flat</span> No change
-                        </div>
+                        </div>-->
 </div>
 </div>
 <!-- Hero Card: Wait Time -->

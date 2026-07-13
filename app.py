@@ -121,14 +121,31 @@ class DashboardWindow(QMainWindow):
     @pyqtSlot(str)
     def on_analytics_ready(self, json_payload):
         """Receives data safely on the main UI thread and pushes it into
-        the JavaScript render pipeline."""
+        the JavaScript render pipeline.  Also syncs today's peak to the
+        main dashboard (idle, no extra file reads)."""
         try:
             data = json.loads(json_payload)
             if data.get("error"):
                 print(f"[Analytics Error] {data['message']}")
                 return
+
+            # Push full analytics to the Analytics tab
             self.browser.page().runJavaScript(
                 f"window.renderAnalytics({json_payload});"
+            )
+
+            # Also sync today's peak to the main dashboard live view
+            peak = data.get("kpis", {}).get("today_peak", {})
+            if "error" not in peak:
+                peak_text = f"{peak['peak_count']} people at {peak['peak_time']}"
+            else:
+                peak_text = "No data yet"
+
+            self.browser.page().runJavaScript(
+                f"""
+                var el = document.getElementById('ui_today_peak');
+                if (el) {{ el.innerText = '{peak_text}'; }}
+                """
             )
         except Exception as e:
             print(f"[UI Error] Analytics injection failed: {e}")
@@ -156,6 +173,7 @@ class DashboardWindow(QMainWindow):
         self.human_count_log = human_count
         wait_time = human_count * Config.AVERAGE_WAITING_TIME
         active_tellers = min((human_count // Config.PEOPLE_PER_TELLER), Config.MAX_TELLER_COUNT - 1)
+
         js_count_update = f"""
             var count_elem = document.getElementById('ui_human_count');
             if (count_elem) {{
